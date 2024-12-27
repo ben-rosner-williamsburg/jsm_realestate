@@ -1,17 +1,22 @@
-import { fileURLToPath } from 'url';
-import path from 'path';
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config) => {
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      '@': path.resolve(__dirname, './'),
+    config.cache = {
+      type: "filesystem",
+      buildDependencies: {
+        config: [__filename], // Use the ES module-compatible __filename
+      },
+      compression: "gzip", // Compress cache for better performance
+      cacheDirectory: path.resolve(".next/cache/webpack"), // Use an absolute path
     };
     return config;
+  },
+  images: {
+    domains: ["bayut-production.s3.eu-central-1.amazonaws.com"]
   },
 };
 

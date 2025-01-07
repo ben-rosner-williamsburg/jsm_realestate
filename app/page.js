@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Flex, Box, Text, Button } from "@chakra-ui/react";
+import Property from "../components/Property";
 import { baseUrl, fetchApi } from "../utils/fetchApi";
 
+// Banner Component
 const Banner = ({
   purpose,
   title1,
@@ -38,26 +40,28 @@ const Banner = ({
   );
 };
 
+// Fetch data in Server Component
 export default async function Home() {
-  const propertiesForSale = await fetchApi(
-    `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-sale&hitsPerPage=6`
-  ).then((data) => data?.hits || [])
-  .catch((err) => {
-    console.error("Error fetching properties for sale:", err);
-    return [];
-  });
-
-  const propertiesForRent = await fetchApi(
+  // Fetch properties for rent
+  const rentData = await fetchApi(
     `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-rent&hitsPerPage=6`
-  ).then((data) => data?.hits || [])
-  .catch((err) => {
+  ).catch((err) => {
     console.error("Error fetching properties for rent:", err);
     return [];
   });
 
-  console.log("propertiesForSale:", propertiesForSale);
-  console.log("propertiesForRent:", propertiesForRent);
+  // Fetch properties for sale
+  const saleData = await fetchApi(
+    `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-sale&hitsPerPage=6`
+  ).catch((err) => {
+    console.error("Error fetching properties for sale:", err);
+    return [];
+  });
 
+  const propertiesForRent = rentData?.hits || [];
+  const propertiesForSale = saleData?.hits || [];
+  console.log("Rent Data:", rentData);
+  console.log("Sale Data:", saleData);
   return (
     <Box>
       <Banner
@@ -71,7 +75,9 @@ export default async function Home() {
         imageUrl="https://bayut-production.s3.eu-central-1.amazonaws.com/image/145426814/33973352624c48628e41f2ec460faba4"
       />
       <Flex flexWrap="wrap">
-        {propertiesForRent.map((property) => <Property property={property} key={property.id}/>)}
+        {propertiesForRent.map((property) => (
+          <Property property={property} key={property.id} />
+        ))}
       </Flex>
       <Banner
         purpose="BUY A HOME"
@@ -84,7 +90,9 @@ export default async function Home() {
         imageUrl="https://bayut-production.s3.eu-central-1.amazonaws.com/image/110993385/6a070e8e1bae4f7d8c1429bc303d2008"
       />
       <Flex flexWrap="wrap">
-        {propertiesForSale.map((property) => <Property property={property} key={property.id}/>)}
+        {propertiesForSale.map((property) => (
+          <Property property={property} key={property.id} />
+        ))}
       </Flex>
     </Box>
   );

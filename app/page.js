@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Flex, Box, Text, Button } from "@chakra-ui/react";
 import Property from "../components/Property";
 import { baseUrl, fetchApi } from "../utils/fetchApi";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 // Banner Component
 const Banner = ({
@@ -60,8 +62,6 @@ export default async function Home() {
 
   const propertiesForRent = rentData?.hits || [];
   const propertiesForSale = saleData?.hits || [];
-  console.log("Rent Data:", rentData);
-  console.log("Sale Data:", saleData);
   return (
     <Box>
       <Banner

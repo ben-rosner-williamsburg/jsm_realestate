@@ -1,5 +1,7 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import "./globals.css"; // Ensure your CSS file path is correct
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 // Metadata (optional, for the App Router)
 export const metadata = {
@@ -13,9 +15,13 @@ export default function RootLayout({ children }) {
       <body>
         <ChakraProvider>
           <div style={{ maxWidth: "1280px", margin: "auto" }}>
-            <header>Navbar</header>
+            <header>
+              <Navbar />
+            </header>
             <main>{children}</main>
-            <footer>Footer</footer>
+            <footer>
+              <Footer />
+            </footer>
           </div>
         </ChakraProvider>
       </body>

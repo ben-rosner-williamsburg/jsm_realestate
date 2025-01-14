@@ -3,8 +3,6 @@ import Image from "next/image";
 import { Flex, Box, Text, Button } from "@chakra-ui/react";
 import Property from "../components/Property";
 import { baseUrl, fetchApi } from "../utils/fetchApi";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 // Banner Component
 const Banner = ({

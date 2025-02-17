@@ -1,8 +1,11 @@
-import Link from "next/link";
+"use client"; // Marks this as a Client Component
+
+import { useState, useEffect } from "react";
+import { Box, Flex, Text, Button } from "@chakra-ui/react";
 import Image from "next/image";
-import { Flex, Box, Text, Button } from "@chakra-ui/react";
+import Link from "next/link";
 import Property from "../components/Property";
-import { baseUrl, fetchApi } from "../utils/fetchApi";
+import { fetchApi, baseUrl } from "../utils/fetchApi";
 
 // Banner Component
 const Banner = ({
@@ -14,52 +17,57 @@ const Banner = ({
   buttonText,
   linkName,
   imageUrl,
-}) => {
-  return (
-    <Flex flexWrap="wrap" justifyContent="center" alignItems="center" m="10">
-      <Image src={imageUrl} width={500} height={300} alt="banner" />
-      <Box p="5">
-        <Text color="gray.500" fontSize="sm" fontWeight="medium">
-          {purpose}
-        </Text>
-        <Text fontSize="3xl" fontWeight="bold">
-          {title1}
-          <br />
-          {title2}
-        </Text>
-        <Text fontSize="lg" paddingTop="3" paddingBottom="3" color="gray.700">
-          {desc1}
-          <br />
-          {desc2}
-        </Text>
-        <Button fontSize="xl">
-          <Link href={linkName}>{buttonText}</Link>
-        </Button>
-      </Box>
-    </Flex>
-  );
-};
+}) => (
+  <Flex flexWrap="wrap" justifyContent="center" alignItems="center" m="10">
+    <Image src={imageUrl} width={500} height={300} alt="banner" />
+    <Box p="5">
+      <Text color="gray.500" fontSize="sm" fontWeight="medium">
+        {purpose}
+      </Text>
+      <Text fontSize="3xl" fontWeight="bold">
+        {title1}
+        <br />
+        {title2}
+      </Text>
+      <Text fontSize="lg" paddingTop="3" paddingBottom="3" color="gray.700">
+        {desc1}
+        <br />
+        {desc2}
+      </Text>
+      <Button fontSize="xl">
+        <Link href={linkName}>{buttonText}</Link>
+      </Button>
+    </Box>
+  </Flex>
+);
 
-// Fetch data in Server Component
-export default async function Home() {
-  // Fetch properties for rent
-  const rentData = await fetchApi(
-    `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-rent&hitsPerPage=6`
-  ).catch((err) => {
-    console.error("Error fetching properties for rent:", err);
-    return [];
-  });
+export default function Home() {
+  const [propertiesForRent, setPropertiesForRent] = useState([]);
+  const [propertiesForSale, setPropertiesForSale] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch properties for sale
-  const saleData = await fetchApi(
-    `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-sale&hitsPerPage=6`
-  ).catch((err) => {
-    console.error("Error fetching properties for sale:", err);
-    return [];
-  });
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const rentData = await fetchApi(
+          `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-rent&hitsPerPage=6`
+        );
+        const saleData = await fetchApi(
+          `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-sale&hitsPerPage=6`
+        );
 
-  const propertiesForRent = rentData?.hits || [];
-  const propertiesForSale = saleData?.hits || [];
+        setPropertiesForRent(rentData?.hits || []);
+        setPropertiesForSale(saleData?.hits || []);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <Box>
       <Banner
@@ -72,11 +80,19 @@ export default async function Home() {
         linkName="/search?purpose=for-rent"
         imageUrl="https://bayut-production.s3.eu-central-1.amazonaws.com/image/145426814/33973352624c48628e41f2ec460faba4"
       />
-      <Flex flexWrap="wrap">
-        {propertiesForRent.map((property) => (
-          <Property property={property} key={property.id} />
-        ))}
-      </Flex>
+
+      {loading ? (
+        <Text textAlign="center" fontSize="xl" mt="5">
+          Loading properties...
+        </Text>
+      ) : (
+        <Flex flexWrap="wrap">
+          {propertiesForRent.map((property) => (
+            <Property property={property} key={property.id} />
+          ))}
+        </Flex>
+      )}
+
       <Banner
         purpose="BUY A HOME"
         title1="Find, Buy & Own Your"
@@ -87,11 +103,18 @@ export default async function Home() {
         linkName="/search?purpose=for-sale"
         imageUrl="https://bayut-production.s3.eu-central-1.amazonaws.com/image/110993385/6a070e8e1bae4f7d8c1429bc303d2008"
       />
-      <Flex flexWrap="wrap">
-        {propertiesForSale.map((property) => (
-          <Property property={property} key={property.id} />
-        ))}
-      </Flex>
+
+      {loading ? (
+        <Text textAlign="center" fontSize="xl" mt="5">
+          Loading properties...
+        </Text>
+      ) : (
+        <Flex flexWrap="wrap">
+          {propertiesForSale.map((property) => (
+            <Property property={property} key={property.id} />
+          ))}
+        </Flex>
+      )}
     </Box>
   );
 }
